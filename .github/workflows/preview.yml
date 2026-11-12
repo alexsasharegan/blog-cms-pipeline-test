@@ -51,7 +51,8 @@ jobs:
         run: |
           marker="<!-- preview-comment -->"
           url=""
-          [ -s preview.json ] && url="$(jq -r '.preview.urls[0] // empty' preview.json 2>/dev/null || true)"
+          # wrangler prints progress lines before the JSON, so keep only from the first line that starts with "{".
+          [ -s preview.json ] && url="$(awk '/^\{/{f=1} f' preview.json | jq -r '.preview.urls[0] // empty' 2>/dev/null || true)"
           if [ -n "$url" ]; then
             body="$marker"$'\n'"**Preview:** $url"$'\n\n'"Commit \`${GITHUB_SHA:0:7}\`. Anyone with the link can read it; it carries noindex."
           else
