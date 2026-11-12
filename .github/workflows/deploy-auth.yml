@@ -1,0 +1,30 @@
+name: Deploy Login Worker
+
+# The Decap login Worker (oauth/). Its two secrets live in Cloudflare, not here; a deploy keeps them.
+on:
+  push:
+    branches: [main]
+    paths: ["oauth/**", ".github/workflows/deploy-auth.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-auth
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npx --no-install wrangler deploy -c oauth/wrangler.jsonc
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

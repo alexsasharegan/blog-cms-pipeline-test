@@ -1,0 +1,15 @@
+{
+  // The login Worker for Decap: exchanges a GitHub OAuth code for a token and hands it to the editor page.
+  // Secrets (set once with `wrangler secret put`, never in this file): GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET.
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "cms-pipeline-test-auth",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  "vars": {
+    // The only page that may receive the token.
+    "ALLOWED_ORIGIN": "https://cms-pipeline-test.alexregan.workers.dev",
+    // public_repo for a public repository; repo for a private one.
+    "SCOPE": "public_repo"
+  }
+}

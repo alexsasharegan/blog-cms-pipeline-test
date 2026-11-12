@@ -1,0 +1,31 @@
+# Decap CMS: edits Markdown in content/blog/ through GitHub, never writing to main directly.
+# Editorial workflow: the first save opens a branch cms/blog/<slug> and a pull request;
+# the pull request's status is the post's status (Draft, In review, Ready); Publish merges it.
+backend:
+  name: github
+  repo: alexsasharegan/blog-cms-pipeline-test
+  branch: main
+  # The login Worker in oauth/ (GitHub OAuth app callback: <base_url>/callback).
+  base_url: https://cms-pipeline-test-auth.alexregan.workers.dev
+  auth_endpoint: auth
+
+publish_mode: editorial_workflow
+
+media_folder: static/images/blog
+public_folder: /images/blog
+
+collections:
+  - name: blog
+    label: Blog
+    label_singular: Post
+    folder: content/blog
+    extension: md
+    create: true
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Date, name: date, widget: datetime, date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: Summary, name: summary, widget: text, required: false }
+      - { label: Draft, name: draft, widget: boolean, default: false, hint: "On: the post is hidden from the site even after it is merged." }
+      - { label: Body, name: body, widget: markdown }
