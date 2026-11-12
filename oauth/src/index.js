@@ -45,18 +45,25 @@ function handoff(env, ok, payload) {
     ? `authorization:github:success:${JSON.stringify({ token: payload, provider: "github" })}`
     : `authorization:github:error:${JSON.stringify({ message: payload })}`;
   return page(
-    `<!doctype html><meta charset="utf-8"><title>Signing in</title><p>Signing in…</p><script>
+    `<!doctype html><meta charset="utf-8"><title>Signing in</title><p id="status">Signing in…</p><script>
 (function () {
   var target = ${inScript(env.ALLOWED_ORIGIN)};
   var message = ${inScript(message)};
+  var status = document.getElementById("status");
+  function say(text) { status.textContent = text; }
+  if (!window.opener) { say("The editor window is gone. Close this window, reload the editor page and sign in again."); return; }
   function receive(e) {
-    if (e.origin !== target) return;
+    if (e.data !== "authorizing:github") return;
+    if (e.source !== window.opener) return;
+    if (e.origin !== target) { say("The editor is at " + e.origin + " but this login only serves " + target + "."); return; }
     window.opener.postMessage(message, target);
     window.removeEventListener("message", receive);
     window.close();
   }
   window.addEventListener("message", receive);
-  window.opener.postMessage("authorizing:github", target);
+  // The handshake announcement carries no secret, so it may go to any origin; the token only goes to the target.
+  window.opener.postMessage("authorizing:github", "*");
+  setTimeout(function () { say("No answer from the editor window. Close this window, reload the editor page and sign in again."); }, 4000);
 })();
 </script>`,
     ok ? 200 : 400,
