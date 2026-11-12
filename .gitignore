@@ -1,0 +1,8 @@
+node_modules/
+public/
+.preview/
+resources/
+.hugo_build.lock
+.env
+.dev.vars
+.wrangler/

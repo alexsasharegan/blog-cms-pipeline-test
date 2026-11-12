@@ -1,0 +1,5 @@
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; line-height: 1.55; }
+body { max-width: 44rem; margin: 0 auto; padding: 1rem; }
+header { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; justify-content: space-between; border-bottom: 1px solid #8884; padding-bottom: .75rem; }
+nav a { margin-right: 1rem; } .brand { font-weight: 700; text-decoration: none; }
+.meta { opacity: .65; font-size: .9em; } .posts { padding-left: 1.2rem; } footer { margin-top: 3rem; opacity: .65; font-size: .9em; }

@@ -1,0 +1,10 @@
+{
+  // Used only by `wrangler preview`. Same Worker, assets from .preview/.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cms-pipeline-test",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  "assets": { "directory": "./.preview", "html_handling": "auto-trailing-slash", "not_found_handling": "404-page" },
+  // Required to exist, even empty.
+  "previews": {}
+}
