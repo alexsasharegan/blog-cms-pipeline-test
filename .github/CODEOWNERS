@@ -1,0 +1,6 @@
+# Everything needs its owner's approval (branch rule: "require review from code owners"),
+# except the blog: a later pattern with no owner makes those paths unowned, so a blog-only
+# pull request needs no reviewer.
+*                      @alexsasharegan
+/content/blog/
+/static/images/blog/
