@@ -1,0 +1,33 @@
+name: Approve Blog Only
+
+# Approves a pull request when every file it changes is under a blog path. The branch rule needs one approval,
+# and CODEOWNERS needs the owner for everything else, so a blog-only pull request can merge with no person
+# reviewing it, and any other change still waits for the owner. A push dismisses the approval (branch rule),
+# and this runs again.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  approve:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Approve when only blog paths changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          files="$(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | .filename, (.previous_filename // empty)')"
+          other="$(printf '%s\n' "$files" | grep -v -E '^(content/blog/|static/images/blog/)' || true)"
+          if [ -n "$files" ] && [ -z "$other" ]; then
+            gh pr review "$PR" --repo "$REPO" --approve --body "Only blog paths changed."
+            echo "Approved: only blog paths changed." >> "$GITHUB_STEP_SUMMARY"
+          else
+            printf 'Not approving. Files outside the blog:\n%s\n' "$other" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
