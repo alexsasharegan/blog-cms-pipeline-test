@@ -1,0 +1,10 @@
+{
+  // Static assets only: no Worker script. Hugo writes public/; Workers serves it.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cms-pipeline-test",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  // true: previews get an address only while this is on, and each `wrangler deploy` applies this value.
+  "preview_urls": true,
+  "assets": { "directory": "./public", "html_handling": "auto-trailing-slash", "not_found_handling": "404-page" }
+}

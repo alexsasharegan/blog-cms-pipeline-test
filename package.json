@@ -1,0 +1,6 @@
+{
+  "name": "blog-cms-pipeline-test",
+  "private": true,
+  "description": "Scratch test of a Git-based blog CMS with Cloudflare Workers previews. Sample content only.",
+  "devDependencies": { "wrangler": "^4.159.0" }
+}

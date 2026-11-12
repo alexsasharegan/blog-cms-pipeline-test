@@ -1,0 +1,38 @@
+name: Preview Cleanup
+
+# Delete the pull request's preview when it closes (merged or not).
+on:
+  pull_request:
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "Preview name to delete, for example pr-12"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Delete the Preview
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          INPUT_NAME: ${{ inputs.name }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          name="${INPUT_NAME:-$(scripts/preview-name.sh "$PR")}"
+          out="$(npx --no-install wrangler preview delete --name "$name" --skip-confirmation 2>&1)" || { echo "$out" >&2; exit 1; }
+          # A name that does not exist is not an error: wrangler exits 0 and prints nothing.
+          if printf '%s' "$out" | grep -q 'deleted successfully'; then msg="Deleted $name"; else msg="No preview named $name existed"; fi
+          { echo "### Preview Cleanup"; echo "$msg"; } >> "$GITHUB_STEP_SUMMARY"
